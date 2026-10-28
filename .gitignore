@@ -1,4 +1,3 @@
-/ansible
 /terraform/.terraform
 /ansible-1.pem
 /Kubertenes-kubeadm-cluster.pem
