@@ -1,7 +1,8 @@
 /ansible
-/terraform
 /terraform/.terraform
 /ansible-1.pem
+/Kubertenes-kubeadm-cluster.pem
 /terraform/terraform.tfstate
+*.pem
 terraform/terraform.tfstate.backup
 terraform/.terraform.tfstate.lock.info
