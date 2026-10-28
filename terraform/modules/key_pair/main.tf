@@ -11,5 +11,5 @@ resource "aws_key_pair" "key_pair"{
 resource "local_sensitive_file" "save_private_key" {
   content = tls_private_key.key.private_key_openssh
   filename = var.private_key_filename
-  file_permission = "0400"
+  file_permission = "0600"
 }

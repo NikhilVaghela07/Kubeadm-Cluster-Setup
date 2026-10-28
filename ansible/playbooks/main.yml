@@ -1,0 +1,6 @@
+- name: Host for running
+  hosts: workers:masternode
+  become: true
+  roles:
+    - common
+    - containerd

@@ -1,0 +1,15 @@
+---
+# handlers file for common
+- name: Load kernal modules
+  become: true
+  ansible.builtin.modprobe:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - overlay
+    - br_netfilter
+
+- name: reload kernal parameter without reboot
+  become: true
+  ansible.builtin.command: sysctl --system
+  changed_when: false

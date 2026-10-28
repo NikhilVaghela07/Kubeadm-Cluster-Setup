@@ -41,3 +41,13 @@ module "security_group" {
   protocol_incommig     = var.protocol_incomming
   tags                  = var.tags_for_sg
 }
+
+resource "local_file" "ansible_inventory" {
+  filename = "${path.module}/inventory.ini"
+
+  content = templatefile("${path.module}/inventory.tftpl", {
+    master_ip  = module.ec2_instance.master_public_ip
+    worker_ips = module.ec2_instance.worker_public_ip
+    key_file   = abspath(var.private_key_filename)
+  })
+}
