@@ -1,0 +1,7 @@
+/ansible
+/terraform
+/terraform/.terraform
+/ansible-1.pem
+/terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/.terraform.tfstate.lock.info
