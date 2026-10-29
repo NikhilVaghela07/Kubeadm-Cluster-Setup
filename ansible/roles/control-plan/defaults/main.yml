@@ -11,3 +11,4 @@ calico_crds:
   - crd/installations.operator.tigera.io
   - crd/apiservers.operator.tigera.io
   - crd/whiskers.operator.tigera.io
+  - crd/tigerastatuses.operator.tigera.io
