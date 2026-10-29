@@ -43,7 +43,7 @@ module "security_group" {
 }
 
 resource "local_file" "ansible_inventory" {
-  filename = "${path.module}/inventory.ini"
+  filename = "/home/einfochips/Desktop/Traning/Cluster/ansible/inventory.ini"
 
   content = templatefile("${path.module}/inventory.tftpl", {
     master_ip  = module.ec2_instance.master_public_ip

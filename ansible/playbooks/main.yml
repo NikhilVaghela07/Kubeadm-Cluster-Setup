@@ -1,8 +1,6 @@
 - name: Host for running
   hosts: workers:masternode
   become: true
-  vars_files:
-    - ../group_vars/all.yml
   roles:
     - common
     - containerd
@@ -10,15 +8,11 @@
 - name: control plan configuration
   hosts: masternode
   become: true
-  vars_files:
-    - ../group_vars/all.yml
   roles:
     - control-plan
 
 - name: join workernodes
   hosts: workers
   become: true
-  vars_files:
-    - ../group_vars/all.yml
   roles:
     - workernode

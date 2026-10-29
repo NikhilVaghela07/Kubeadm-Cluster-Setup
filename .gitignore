@@ -1,5 +1,7 @@
 /terraform/.terraform
 /ansible-1.pem
+terraform/inventory.ini
+ansible/inventory.ini
 /Kubertenes-kubeadm-cluster.pem
 /terraform/terraform.tfstate
 *.pem
