@@ -1,0 +1,11 @@
+---
+kubeconfig_directory: "/home/{{ ansible_user }}/.kube"
+kubeconfig_path: "{{ kubeconfig_directory }}/config"
+admin_config_path: /etc/kubernetes/admin.conf
+kubeadm_config_path: /etc/kubernetes/admin.conf
+pod_network_cidr: "192.168.0.0/16"
+control_plane_kubectl_binary: kubectl
+calico_crds:
+  - crd/installations.operator.tigera.io
+  - crd/apiservers.operator.tigera.io
+  - crd/whiskers.operator.tigera.io

@@ -1,2 +1,18 @@
 ---
-# defaults file for common
+common_packages:
+  - ca-certificates
+  - curl
+  - gpg
+kubernetes_version: "v1.37"
+calico_version: "v3.33.0"
+modules_file: /etc/modules-load.d/k8s.conf
+sysctl_file: /etc/sysctl.d/k8s.conf
+keyrings_directory: /etc/apt/keyrings
+release_key_path: /tmp/kubernetes-release.key
+keyring_path: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+repository_filename: kubernetes
+kubernetes_packages:
+  - kubelet
+  - kubeadm
+  - kubectl
+kubelet_service_name: kubelet

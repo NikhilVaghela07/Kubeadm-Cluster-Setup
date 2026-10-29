@@ -1,2 +1,5 @@
 ---
-# defaults file for containerd
+containerd_package: containerd
+config_directory: /etc/containerd
+config_path: /etc/containerd/config.toml
+service_name: containerd

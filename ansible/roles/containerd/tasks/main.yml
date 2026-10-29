@@ -3,14 +3,14 @@
 - name: install containerd
   become: true
   ansible.builtin.apt:
-    name: containerd
+    name: "{{ containerd_package }}"
     state: present
     update_cache: true
 
 - name: create containerd directory
   become: true
   ansible.builtin.file:
-    path: /etc/containerd
+    path: "{{ config_directory }}"
     state: directory
     mode: "0755"
 
@@ -21,13 +21,13 @@
 - name: "write default config toml"
   ansible.builtin.copy:
     content: "{{ containerd_config.stdout }}"
-    dest: "/etc/containerd/config.toml"
+    dest: "{{ config_path }}"
     mode: '0644'
 
 - name: system cgroups
   become: true
   ansible.builtin.replace:
-    path: /etc/containerd/config.toml
+    path: "{{ config_path }}"
     regexp: "SystemdCgroup = false"
     replace: "SystemdCgroup = true"
   notify: restart containerd
@@ -35,6 +35,6 @@
 - name: enable containerd
   become: true
   ansible.builtin.systemd:
-    name: containerd
+    name: "{{ service_name }}"
     enabled: true
     state: started

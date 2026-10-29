@@ -1,0 +1,105 @@
+---
+# tasks file for controle-plan
+- name: init control plane
+  become: true
+  ansible.builtin.command:
+    argv:
+      - kubeadm
+      - init
+      - --pod-network-cidr={{ pod_network_cidr }}
+    creates: "{{ kubeadm_config_path }}"
+
+- name: kubeconfig direcory
+  become: true
+  become_user: "{{ ansible_user }}"
+  ansible.builtin.file:
+    path: "{{ kubeconfig_directory }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0755"
+
+- name: copy admin config file
+  become: true
+  ansible.builtin.copy:
+    remote_src: true
+    src: "{{ admin_config_path }}"
+    dest: "{{ kubeconfig_path }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0600"
+
+- name: remove conrol node taint
+  become: true
+  become_user: "{{ ansible_user }}"
+  ansible.builtin.command:
+    argv:
+      - kubectl
+      - taint 
+      - nodes 
+      - --all 
+      - node-role.kubernetes.io/control-plane-
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+  register: taint_result
+  changed_when: taint_result.rc == 0
+  failed_when:
+    - taint_result.rc != 0
+    - "'taint' not in (taint_result.stderr | lower)"
+    - "'not found' not in (taint_result.stderr | lower)"
+
+# calico
+- name: install calico operator
+  become: true
+  become_user: "{{ ansible_user }}"
+  ansible.builtin.command:
+    argv:
+      - "{{ control_plane_kubectl_binary }}"
+      - apply
+      - -f
+      - "https://raw.githubusercontent.com/projectcalico/calico/{{ calico_version }}/manifests/tigera-operator.yaml"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+  register: calico_operator
+
+- name: wait for calico custom resource definitions
+  become: true
+  become_user: "{{ ansible_user }}"
+  ansible.builtin.command:
+    argv:
+      - "{{ control_plane_kubectl_binary }}"
+      - wait
+      - --for=condition=Established
+      - --timeout=10s
+      - "{{ item }}"
+  loop: "{{ calico_crds }}"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+  register: calico_crd_status
+  until: calico_crd_status is succeeded
+  retries: 30
+  delay: 5
+  changed_when: false
+
+- name: install calico resource
+  become: true
+  become_user: "{{ ansible_user }}"
+  ansible.builtin.command:
+    argv:
+      - "{{ control_plane_kubectl_binary }}"
+      - apply
+      - -f
+      - "https://raw.githubusercontent.com/projectcalico/calico/{{ calico_version }}/manifests/custom-resources.yaml"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+  register: calico_resources
+
+- name: worker node join
+  become: true
+  ansible.builtin.command:
+    cmd: kubeadm token create --print-join-command
+  register: workernode_join_command
+  
+- name: Save worker join command
+  ansible.builtin.set_fact:
+    kubeadm_join_command: "{{ workernode_join_command.stdout }}"
