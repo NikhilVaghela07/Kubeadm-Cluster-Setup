@@ -16,9 +16,3 @@
   become: true
   roles:
     - workernode
-
-- name: checking cluster
-  hosts: masternode
-  become: true
-  roles:
-    - checkworking
