@@ -10,7 +10,6 @@
     creates: "{{ kubeadm_config_path }}"
 
 - name: kubeconfig direcory
-  become: true
   become_user: "{{ ansible_user }}"
   ansible.builtin.file:
     path: "{{ kubeconfig_directory }}"
@@ -29,7 +28,7 @@
     group: "{{ ansible_user }}"
     mode: "0600"
 
-- name: remove conrol node taint
+- name: remove control node taint
   become: true
   become_user: "{{ ansible_user }}"
   ansible.builtin.command:
@@ -39,8 +38,6 @@
       - nodes 
       - --all 
       - node-role.kubernetes.io/control-plane-
-  environment:
-    KUBECONFIG: "{{ kubeconfig_path }}"
   register: taint_result
   changed_when: taint_result.rc == 0
   failed_when:
@@ -58,9 +55,6 @@
       - apply
       - -f
       - "https://raw.githubusercontent.com/projectcalico/calico/{{ calico_version }}/manifests/tigera-operator.yaml"
-  environment:
-    KUBECONFIG: "{{ kubeconfig_path }}"
-  register: calico_operator
 
 - name: wait for calico custom resource definitions
   become: true
@@ -73,8 +67,6 @@
       - --timeout=10s
       - "{{ item }}"
   loop: "{{ calico_crds }}"
-  environment:
-    KUBECONFIG: "{{ kubeconfig_path }}"
   register: calico_crd_status
   until: calico_crd_status is succeeded
   retries: 30
@@ -90,9 +82,6 @@
       - apply
       - -f
       - "https://raw.githubusercontent.com/projectcalico/calico/{{ calico_version }}/manifests/custom-resources.yaml"
-  environment:
-    KUBECONFIG: "{{ kubeconfig_path }}"
-  register: calico_resources
 
 - name: worker node join
   become: true

@@ -4,6 +4,8 @@ kubeconfig_path: "{{ kubeconfig_directory }}/config"
 admin_config_path: /etc/kubernetes/admin.conf
 kubeadm_config_path: /etc/kubernetes/admin.conf
 pod_network_cidr: "192.168.0.0/16"
+calico_version: "v3.33.0"
+kubernetes_version: "v1.37"
 control_plane_kubectl_binary: kubectl
 calico_crds:
   - crd/installations.operator.tigera.io
