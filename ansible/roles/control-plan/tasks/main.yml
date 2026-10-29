@@ -46,42 +46,56 @@
     - "'not found' not in (taint_result.stderr | lower)"
 
 # calico
-- name: install calico operator
+- name: "Untaint the master node and install network plugin"
   become: true
-  become_user: "{{ ansible_user }}"
-  ansible.builtin.command:
-    argv:
-      - "{{ control_plane_kubectl_binary }}"
-      - apply
-      - -f
-      - "https://raw.githubusercontent.com/projectcalico/calico/{{ calico_version }}/manifests/tigera-operator.yaml"
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  block:
+    - name: "Untaint the master node"
+      ansible.builtin.command:
+        cmd: "kubectl taint nodes --all node-role.kubernetes.io/control-plane-"
+      register: untaint_result
+      changed_when: "'untainted' in untaint_result.stdout"
+      failed_when: false
 
-- name: wait for calico custom resource definitions
-  become: true
-  become_user: "{{ ansible_user }}"
-  ansible.builtin.command:
-    argv:
-      - "{{ control_plane_kubectl_binary }}"
-      - wait
-      - --for=condition=Established
-      - --timeout=10s
-      - "{{ item }}"
-  loop: "{{ calico_crds }}"
-  register: calico_crd_status
-  until: calico_crd_status is succeeded
-  retries: 30
-  delay: 5
-  changed_when: false
+    - name: "Install Calico crd"
+      ansible.builtin.command:
+        cmd: >-
+          kubectl create -f
+          https://raw.githubusercontent.com/projectcalico/calico/v3.33.0/manifests/v3_projectcalico_org.yaml
+      register: calico_crds
+      changed_when: calico_crds.rc == 0
+      failed_when:
+        - calico_crds.rc != 0
+        - "'AlreadyExists' not in calico_crds.stderr"
 
-- name: install calico resource
-  become: true
-  become_user: "{{ ansible_user }}"
-  ansible.builtin.command:
-    argv:
-      - "{{ control_plane_kubectl_binary }}"
-      - apply
-      - -f
-      - "https://raw.githubusercontent.com/projectcalico/calico/{{ calico_version }}/manifests/custom-resources.yaml"
+    - name: Install Tigera operator
+      ansible.builtin.command:
+        cmd: >-
+          kubectl create -f
+          https://raw.githubusercontent.com/projectcalico/calico/v3.33.0/manifests/tigera-operator.yaml
+      register: tigera_operator
+      changed_when: tigera_operator.rc == 0
+      failed_when: tigera_operator.rc != 0 and 'AlreadyExists' not in tigera_operator.stderr
+
+    - name: Wait for Calico operator to be ready
+      ansible.builtin.command:
+        cmd: kubectl get crd installations.operator.tigera.io
+      register: wait_tigera_operator
+      changed_when: false
+      until: wait_tigera_operator.rc == 0
+      retries: 10
+      delay: 5
+      failed_when: wait_tigera_operator.rc != 0
+
+    - name: Install Calico custom resources
+      ansible.builtin.command:
+        cmd: >-
+          kubectl create -f
+          https://raw.githubusercontent.com/projectcalico/calico/v3.33.0/manifests/custom-resources.yaml
+      register: calico_resources
+      changed_when: calico_resources.rc == 0
+      failed_when: calico_resources.rc != 0 and 'AlreadyExists' not in calico_resources.stderr
 
 - name: worker node join
   become: true
