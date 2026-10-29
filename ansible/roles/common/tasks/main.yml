@@ -29,3 +29,46 @@
       net.bridge.bridge-nf-call-ip6tables = 1
       net.ipv4.ip_forward                 = 1
   notify: reload kernal parameter without reboot
+
+# Kubernetes resource downlaod
+- name: create apt ketring dircory
+  become: true
+  ansible.builtin.file:
+    path: /etc/apt/keyrigs
+    state: directory
+    mode: "0755"
+
+- name: kuberentes signing key downlaod
+  become: true
+  ansible.builtin.get_url:
+    url: https://pkgs.k8s.io/core:/stable:/v1.37/deb/Release.key
+    dest: /tmp/kubernetes-release.key
+    mode: "0644"
+
+- name: install kubernetes repository signing kery
+  become: true
+  ansible.builtin.command:
+    cmd: gpg --dearmor --yes -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg /tmp/kubernetes-release.key'
+  args:
+    creates: /etc/apt/keyrings/kubernetes-apt-keyring.gp
+
+- name: kuberntes apt repository
+  become: true
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.37/deb/ /"
+    filename: kubernetes
+    state: present
+
+- name: kubernetes packages
+  become: true
+  ansible.builtin.apt:
+    name: 
+      - kubelet
+      - kubeadm
+      - kubectl
+
+- name: enable kubelt
+  become: true
+  ansible.builtin.systemd:
+    name: kubelet
+    enabled: true
