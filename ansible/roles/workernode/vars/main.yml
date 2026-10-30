@@ -1,2 +1,5 @@
 ---
 # vars file for workernode
+src_path_copy_kube_config_file: "{{ playbook_dir }}/../roles/control-plan/files/config"
+dest_path_copy_kube_config_file: "/home/ubuntu/.kube/config"
+kube_config_folder_path: "/home/ubuntu/.kube"

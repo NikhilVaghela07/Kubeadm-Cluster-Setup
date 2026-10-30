@@ -45,6 +45,13 @@
     - "'taint' not in (taint_result.stderr | lower)"
     - "'not found' not in (taint_result.stderr | lower)"
 
+- name: copy kube config file file to local
+  ansible.builtin.fetch:
+    src: "{{ src_path }}"
+    dest: "{{ dest_path_kube_config_file }}"
+    flat: yes
+  tags: copyfile
+
 # calico
 - name: "Untaint the master node and install network plugin"
   become: true
