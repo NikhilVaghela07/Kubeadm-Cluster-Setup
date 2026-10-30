@@ -1,2 +1,4 @@
 ---
 # vars file for controle-plan
+src_path: "/home/ubuntu/.kube/config"
+dest_path_kube_config_file: "{{ playbook_dir }}/../roles/control-plan/files/config"

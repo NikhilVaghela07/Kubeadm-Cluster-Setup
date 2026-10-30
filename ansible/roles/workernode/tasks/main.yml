@@ -11,3 +11,17 @@
   ansible.builtin.command:
     cmd: "{{ hostvars[groups[control_plane_group][0]].kubeadm_join_command }}"
   when: not kubelet_config.stat.exists
+
+- name: create .kube folder
+  ansible.builtin.file:
+    path: "{{ kube_config_folder_path }}"
+    owner: ubuntu
+    group: ubuntu
+    state: directory
+  tags: copyfile
+
+- name: copy kubeconfig file
+  ansible.builtin.copy:
+    src: "{{ src_path_copy_kube_config_file }}"
+    dest: "{{ dest_path_copy_kube_config_file }}"
+  tags: copyfile
