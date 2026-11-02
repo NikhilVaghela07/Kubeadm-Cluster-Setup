@@ -120,6 +120,6 @@ kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.33.0
 #### Join Worker Node
 
 ```
-kubeadm join 172.31.27.158:6443 --token fbqfnk.kpkf4z35eek3rz2p \
-        --discovery-token-ca-cert-hash sha256:e570b8c45983a84aa2795f0ca7c723ea4b1a1364ff11c214809e1e4ab8811a55
+kubeadm join <Master-IP>:6443 --token <Token> \
+        --discovery-token-ca-cert-hash <Hash>
 ```

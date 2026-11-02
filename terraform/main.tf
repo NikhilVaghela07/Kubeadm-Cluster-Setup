@@ -1,21 +1,3 @@
-terraform {
-  required_providers {
-    aws = {
-      source = "hashicorp/aws"
-    }
-    tls = {
-      source = "hashicorp/tls"
-    }
-    local = {
-      source = "hashicorp/local"
-    }
-  }
-}
-
-provider "aws" {
-  region = var.region
-}
-
 module "key_pair" {
   source               = "./modules/key_pair"
   key_name             = var.key_name
